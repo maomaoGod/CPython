@@ -30,6 +30,54 @@ void errormessage(PyObject* pValue,PyObject *pError){
 	Py_XDECREF(traceback_obj);
 }
 
+void importClassModule(){
+	if (false == Py_IsInitialized())
+		return;
+	PyObject* pName = NULL;
+	PyObject* pMod = NULL;
+	PyObject* pError = NULL;
+	PyObject* pDict = NULL;
+	PyObject* pClass = NULL;
+	PyObject* pInstance = NULL;
+	PyObject* pParam = NULL;
+	PyObject* pResult = NULL;
+
+	pName = PyUnicode_FromString("Geometry");
+
+	//add dependent path
+	PyRun_SimpleString("import sys");
+	PyRun_SimpleString("sys.path.append('.')");
+
+	pMod = PyImport_Import(pName);
+	pError = PyErr_Occurred();
+	errormessage(pMod, pError);
+
+	//get dict attribute
+	pDict = PyModule_GetDict(pMod);
+	pError = PyErr_Occurred();
+	errormessage(pMod, pError);
+
+	//get the class from the module
+	pClass = PyDict_GetItemString(pDict, "ClockTimer");
+	pError = PyErr_Occurred();
+	errormessage(pMod, pError);
+
+	//get the instance
+	//pInstance = PyInstanceMethod_New(pClass);
+	pInstance = PyObject_CallObject(pClass, NULL);
+	pError = PyErr_Occurred();
+	errormessage(pMod, pError);
+
+	//exec the func
+	pResult = PyObject_CallMethod(pInstance, "start", "()");
+	pError = PyErr_Occurred();
+	errormessage(pResult, pError);
+
+	pResult = PyObject_CallMethod(pInstance, "stop", "()");
+	pError = PyErr_Occurred();
+	errormessage(pResult, pError);
+}
+
 int get_addmethod(int a, int b){
 	if (false == Py_IsInitialized())
 		return -1;
@@ -51,11 +99,10 @@ int get_addmethod(int a, int b){
 	if (NULL != PyErr_Occurred()){
 
 	}
+
 	PyRun_SimpleString("import sys");
 	PyRun_SimpleString("sys.path.append('.')");
 	
-	PyInstanceMethod_New();
-	PyObject_CallMethod()
 	pModule = PyImport_Import(pMoudleName);
 	pError = PyErr_Occurred();
 	errormessage(pModule, pError);
@@ -88,6 +135,9 @@ int main(int argc, char*argv[]){
 	
 
 	cout << get_addmethod(11, 12) << endl;
+
+	importClassModule();
+
 	PyMem_RawFree(progname);
 	cin.get();
 	Py_Finalize();
